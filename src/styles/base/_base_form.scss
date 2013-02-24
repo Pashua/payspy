@@ -1,0 +1,38 @@
+.tw-form {
+  background-color: #EEEEEE;
+  border-radius: 5px;
+  border: 1px solid #dddddd;
+  width: 100%;
+  padding: 30px;
+  
+  .tw-line-wrapper {
+    line-height: 40px;
+    
+    $column-width: 6em;
+    $gutter-width: 0.2em;
+    $grid-padding: 1em;
+    @include container(24);
+    
+    .tw-label {
+      @include span-columns(6, 24);
+      color: #555555;
+    }
+    .tw-field {
+      @include span-columns(18 omega, 24);
+      input {
+        width: 98%;
+      }
+    }
+    
+    &.tw-actions {
+      .tw-left {
+        text-align: left;
+        @include span-columns(12, 24);
+      }
+      .tw-right {
+        text-align: right;
+        @include span-columns(12 omega, 24);
+      }
+    }
+  }
+}

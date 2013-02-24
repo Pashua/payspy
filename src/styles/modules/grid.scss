@@ -1,0 +1,50 @@
+@import "susy";
+
+$total-columns: 24;
+$column-width: 30px;
+$gutter-width: 10px;
+$grid-padding: 10px;
+
+body > header.tw-primary {
+  left: 0;
+  top: 0;
+  width: 100%;
+
+  > .tw-nav-items {
+    @include container(24);
+    margin: auto;
+
+    > .tw-left {
+      @include span-columns(18, 24);
+    }
+    > .tw-right {
+      @include span-columns(6 omega, 24);
+    }
+  }
+}
+
+.tw-content {
+  @include container(24);
+  margin: auto;
+  padding-top: 30px;
+}
+
+body > footer.tw-primary {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  
+   > .tw-footer-items {
+    @include container(24);
+    margin: auto;
+
+    > .tw-left {
+      @include span-columns(18, 24);
+    }
+    > .tw-right {
+      @include span-columns(6 omega, 24);
+    }
+  }
+}
+

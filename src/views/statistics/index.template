@@ -1,0 +1,46 @@
+<section class="tw-statistics" ng:controller="statisticController">
+
+	<div class="tw-wrapper" ng:show="account">
+		<span class="tw-headline">
+			<h1>{{account.account}} - {{account.name}}</h1>
+			<span></span>
+		</span>
+		
+		
+		<div class="tw-select-dates">
+			<div class="tw-wrapper">
+				<span>Datum von</span>
+				<input type="text" ng:model="dateSelected.from" ui-date class="tw-date-from" name="date-from" id="date-from">
+				<span>Datum bis</span>
+				<input type="text" ng:model="dateSelected.to" ui-date class="tw-date-from" name="date-from" id="date-from">
+			</div>
+		</div>
+		
+		<!-- File upload -->
+		<tw:file-upload waitfor="account" url="/api/statistics" done=""></tw:file-upload>
+		
+		<!-- Statistik Daten -->
+		<div class="tw-data">
+			<div class="tw-month" ng:repeat="month in months.data">
+				<div class="tw-overview">
+					<span class="tw-title" type="acc" data-toggle="collapse" data-target="#{{month.name}}">{{month.name}}</span>
+					<span class="tw-val-h">{{month.value_h | number:2}}</span>
+					<span class="tw-val-s">{{month.value_s | number:2}}</span>
+					<span class="tw-sum">{{(month.value_h*1)+(month.value_s*1) | number:2}}</span>
+				</div>
+				<div id="{{month.name}}" class="tw-accordion-body collapse">
+					<div class="accordion-inner">
+						TODO: Content of Categories Values<br>
+						sub-accordion...
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="tw-wrapper" ng:hide="account">
+		<div class="statLogo">
+			<img src="styles/images/moneyhouse.gif">
+		</div>
+	</div>
+</section>

@@ -1,0 +1,24 @@
+<div class="tw-fileupload">
+	<form name="fileupload">
+		
+		<!-- the hidden fileinput-field -->
+		<div class="tw-fileinput-container"><input type="file" path="fileData" id="fileinput" name="fileData"></div>
+		
+		<span class="label label-warning" ng:show="disabled">{{textDisabled}}</span>
+		
+		<div class="tw-controls" ng:hide="disabled">
+			
+			<!-- progressbar template -->
+			<div class="progress progress-striped active tw-template" ng:repeat="(file, val) in uploadingFiles" data-file-id="{{file}}">
+				<div class="bar" style="width: {{val.progress}}%;">
+					<span class="tw-progress-title">{{file}}</span>
+					<span class="tw-progress-message">{{val.errMsg}}</span>
+				</div>
+			</div>
+			
+			<!-- button to trigger fileinput-click -->
+			<button class="btn btn-small" type="button" ng:click="onClickFileDialog()">Neue Umsätze hochladen...</button>
+		</div>
+	
+	</form>
+</div>

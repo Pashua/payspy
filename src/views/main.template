@@ -1,0 +1,7 @@
+<div class="tw-content">
+	
+	<%= config.include('./src/views/accounts/index.template') %>
+	
+	<%= config.include('./src/views/statistics/index.template') %>
+	
+</div>

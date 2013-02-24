@@ -1,0 +1,63 @@
+<div class="tw-account-edit">
+	<form name="editAccountForm" ng:submit="updateAccount()">
+		<span class="tw-headline">
+			<h1>Konto bearbeiten...</h1>
+			<span>{{origAccount.data.account}} - {{origAccount.data.name}}</span>
+		</span>
+		
+		<div class="tw-form tw-form-account">
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Kontonummer</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="updAccount.data.account" disabled class="tw-account" name="account" id="account" placeholder="Kann nicht geändert werden">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Name</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="updAccount.data.name" required class="tw-name" name="name" id="name" placeholder="Bitte einen Namen eingeben">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Start Datum</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="updAccount.data.start_date" disabled class="tw-start_date" name="start_date" id="start_date" placeholder="Wird automatisch ermittelt">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Kontostand am {{updAccount.data.start_date}}</label>
+				</div> 
+				<div class="tw-field">
+					<div class="input-append">
+						<input type="text" ng:model="updAccount.data.start_value" required class="tw-start_value" name="start_value" id="start_value" placeholder="Bitte einen Wert eingeben">
+						<span class="add-on">€</span>
+					</div>
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper tw-actions">
+				<div class="tw-left">
+					<button class="btn btn-danger" type="reset" ng:disabled="updAccount.state!='ready'">Konto Löschen</button>
+				</div>
+				<div class="tw-right">
+					<span class="label label-important">{{errMsg}}</span>
+					<button class="btn" ng:click="onCancelEdit()" type="reset">Abbrechen</button>
+					<button class="btn btn-primary" type="submit" ng:disabled="updAccount.state!='ready'">Speichern</button>
+				</div>
+			</div>
+				
+		</div>
+	</form>
+	
+</div>

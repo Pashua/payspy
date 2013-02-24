@@ -1,0 +1,18 @@
+body > footer.tw-primary {
+  height: 60px;
+  background-color: #eee;
+  
+  .tw-footer-items {
+    line-height: 40px;
+    > .tw-left {
+      text-align: left;
+      color:#888888;
+      font-size: 12px;
+    }
+    > .tw-right {
+      text-align: right;
+      color:#aaaaaa;
+      font-size: 10px;
+    }
+  }
+}

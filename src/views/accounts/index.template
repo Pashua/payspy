@@ -1,0 +1,40 @@
+<section class="tw-accounts" ng:controller="accountController">
+
+	<div class="tw-wrapper collapse" ng:class="{'in': account}"> <!-- TODO do animate !!!!!!!!!!!!!!!!!!! -->
+	
+		<div ng:switch on="mode">
+		
+			<div ng:switch-when="list">
+				<span class="tw-headline">
+					<h1>Wähle hier Dein Konto aus...</h1>
+					<span>Sollte dein Konto nicht in der Auswahl sein, dann erstelle <a ng:href="#/accounts?mode=add">hier</a> ein neues!</span>
+				</span>
+				
+				
+				<select ng:model="accountId">
+					<option value="">Konto auswählen...</option>
+					<option ng-repeat="a in accounts.data" ng-selected="a.account==accountId" value="{{a.account}}">{{a.account}} - {{a.name}}</option>
+				</select>
+				
+				<span ng:show="accountId">
+					<div class="btn-group">
+						<span ng:click="onEditAccount(accountId)" class="btn">Einstellungen...</span>
+						<span ng:click="onStartStatistic(accountId)" class="btn btn-primary">Starten!</span>
+					</div>
+				</span>
+				
+			</div>
+	
+			<div ng:switch-when="edit">
+				<%= config.include('./src/views/accounts/edit.template') %>
+			</div>
+	
+			<div ng:switch-when="add">
+				<%= config.include('./src/views/accounts/add.template') %>
+			</div>
+			
+		</div>
+		
+	</div>
+	
+</section>

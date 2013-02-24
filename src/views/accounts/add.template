@@ -1,0 +1,62 @@
+<div class="tw-account-edit">
+	<form name="editAccountForm" ng:submit="updateAccount()">
+		<span class="tw-headline">
+			<h1>Ein neues Konto erstellen...</h1>
+			<span></span>
+		</span>
+		
+		<div class="tw-form tw-form-account">
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Kontonummer</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="newAccount.data.account" class="tw-account" name="account" id="account" placeholder="Bitte Kontonummer ohne Leerzeichen eingeben">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Name</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="newAccount.data.name" required class="tw-name" name="name" id="name" placeholder="Bitte einen Namen eingeben">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Start Datum</label>
+				</div> 
+				<div class="tw-field">
+					<input type="text" ng:model="newAccount.data.start_date" disabled class="tw-start_date" name="start_date" id="start_date" placeholder="Wird automatisch ermittelt">
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper">
+				<div class="tw-label">
+					<label>Kontostand</label>
+				</div> 
+				<div class="tw-field">
+					<div class="input-append">
+						<input type="text" ng:model="newAccount.data.start_value" required class="tw-start_value" name="start_value" id="start_value" placeholder="Bitte einen Wert eingeben">
+						<span class="add-on">€</span>
+					</div>
+				</div>
+			</div>
+			
+			<div class="tw-line-wrapper tw-actions">
+				<div class="tw-left">
+				</div>
+				<div class="tw-right">
+					<span class="label label-important">{{errMsg}}</span>
+					<a class="btn" ng:href="/#accounts" type="reset">Abbrechen</a>
+					<button class="btn btn-primary" type="submit">Erstellen</button>
+				</div>
+			</div>
+				
+		</div>
+	</form>
+	
+</div>

@@ -1,0 +1,19 @@
+body > header.tw-primary {
+  background-color: #333234;
+  
+  .tw-nav-items {
+    line-height: 40px;
+    padding: 15px;
+    color: #ffffff;
+    
+    a { color: #ffffff; font-family: comic sans ms}
+    
+    > .tw-left {
+      text-align: left;
+      font-size: 30px;
+    }
+    > .tw-right {
+      text-align: right;
+    }
+  }
+}
