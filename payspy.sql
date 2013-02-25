@@ -30,7 +30,7 @@ CREATE TABLE `CATEGORIES` (
 --
 -- Table structure for table `MOVING`
 --
-CREATE TABLE `MOVING` (
+CREATE TABLE `MOVINGS` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `matches` VARCHAR(2000), -- comma separated values
   `tolerance` INT,
