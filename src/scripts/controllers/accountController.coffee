@@ -12,7 +12,7 @@ define ['controllers/controllers', 'services/accountService'], (controllers) ->
     # Controller and view should be active.
     ACTIVE    : 'active'
     # Controller is loading data, view should be active.
-    RUNNING   : 'running'
+    LOADING   : 'loading'
     # Controller has finished, view should be active.
     READY     : 'ready'
     # Controller and view are not active. Just like init, but after an activation life cycle
@@ -68,7 +68,6 @@ define ['controllers/controllers', 'services/accountService'], (controllers) ->
           delete $rootScope.account if $rootScope.account
           # load account for updating
           loadAccount($scope.accountId, false)
-          onEditAccount()
         when MODES.START
           loadAccount($scope.accountId, true)
 
@@ -78,7 +77,7 @@ define ['controllers/controllers', 'services/accountService'], (controllers) ->
 
     loadAccounts = () ->
       console.log 'called loadAccounts'
-      $scope.accounts.state = STATES.RUNNING
+      $scope.accounts.state = STATES.LOADING
       request = accountService.getAll()
       request.success (data, status, headers, config) ->
         $scope.accounts.data  = data
@@ -89,9 +88,12 @@ define ['controllers/controllers', 'services/accountService'], (controllers) ->
 
     loadAccount = (id, copyToRootScope) ->
       console.log 'called loadAccount'
+      $scope.updAccount.state = STATES.LOADING
       request = accountService.getById(id)
       request.success (data, status, headers, config) ->
+        $scope.origAccount.data = angular.copy data 
         $scope.updAccount.data = angular.copy data
+        $scope.updAccount.state = STATES.READY
         if copyToRootScope
           $rootScope.account = angular.copy data
       request.error (response, status) ->
@@ -103,10 +105,10 @@ define ['controllers/controllers', 'services/accountService'], (controllers) ->
       $scope.updAccount  = state : STATES.ACTIVE, data : []
       $scope.origAccount = data : []
     
-    onEditAccount = () ->
-      console.log 'called onEditAccount'
-      $scope.origAccount.data = angular.copy $rootScope.account
-      $scope.updAccount.data = angular.copy $rootScope.account
+    #onEditAccount = () ->
+    #  console.log 'called onEditAccount'
+    #  $scope.origAccount.data = angular.copy $rootScope.account
+    #  $scope.updAccount.data = angular.copy $rootScope.account
 
     ######
 
