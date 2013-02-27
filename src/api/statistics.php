@@ -32,8 +32,13 @@ function getStatisticsMonths() {
 function addStatisticData() {
 	error_log('addStatisticData\n', 3, 'php.log');
 	$request = Slim::getInstance()->request();
+	$response = Slim::getInstance()->response();
+	
+	$countInserted = 0;
+	$returnMsg = '';
 	
 	if(!isset($_FILES['fileData'])) {
+		$response->status(400);
 		echo "No files uploaded!!";
 		return;
 	}
@@ -47,7 +52,6 @@ function addStatisticData() {
 		foreach ($lines as $key => $value) {
 			$csv[$key] = str_getcsv($value, ';');
 		}
-		//print_r($csv);
 	}
 	
 	if( count($csv) > 0 ) {
@@ -58,14 +62,16 @@ function addStatisticData() {
 		$movingsJSON = ob_get_contents();
 		ob_end_clean();
 		
+		$account = $csv[1][0];
+		$lastData = getLastDataRows($account);
 		
-		$lastData = getLastDataRows($csv[0][0]);
-		$lastValuta = $lastData[0]->valuta;
-		$lastValutaDD   = substr($lastValuta, 0, 2);
-		$lastValutaMM   = substr($lastValuta, 3, 2);
-		$lastValutaYYYY = "20".substr($lastValuta, 6, 2);
-		# if the are no values in db the earliest import date is Jan. 1980
-		$lastValutaYMD      = $lastData ? $lastValutaYYYY.$lastValutaMM.$lastValutaDD : '198001';
+		if($lastData) {
+			$lastValuta = $lastData[0]->valuta;
+			//$lastValutaDD   = substr($lastValuta, 0, 2);
+			//$lastValutaMM   = substr($lastValuta, 3, 2);
+			//$lastValutaYYYY = "20".substr($lastValuta, 6, 2);
+			$lastValutaYMD  = $lastData ? str_replace("-", "", $lastValuta) : '';
+		}
 		
 		//var_dump($lastData);
 		//return;
@@ -81,36 +87,52 @@ function addStatisticData() {
 			
 			$statObj['account']            = $line[0];
 			
-			$valutaDD   = substr($valuta, 0, 2);
-			$valutaMM   = substr($valuta, 3, 2);
-			$valutaYYYY = "20".substr($valuta, 6, 2);
-			$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
-			$valutaTS = strtotime($valutaYYYY.$valutaMM.$valutaDD);
-			$statObj['valuta']             = date("Y-m-d", $valutaTS);
+			if( $valuta ) {
+				$valutaDD   = substr($valuta, 0, 2);
+				$valutaMM   = substr($valuta, 3, 2);
+				$valutaYYYY = "20".substr($valuta, 6, 2);
+				$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
+				$valutaTS = strtotime($valutaYYYY.$valutaMM.$valutaDD);
+				$statObj['valuta']             = date("Y-m-d", $valutaTS);
 			
-			$booking = $line[2];
-			$bookingDD = substr($valuta, 0, 2);
-			$bookingMM = substr($valuta, 3, 2);
-			$bookingTS = strtotime($valutaYYYY.$bookingMM.$bookingDD);
-			$statObj['booking']            = date("Y-m-d", $bookingTS);
+				$booking = $line[2];
+				if( $booking ) {
+					$bookingDD = substr($booking, 0, 2);
+					$bookingMM = substr($booking, 3, 2);
+					$bookingTS = strtotime($valutaYYYY.$bookingMM.$bookingDD);
+					$statObj['booking']            = date("Y-m-d", $bookingTS);
+				} else {
+					$doImport = false;
+				}
+			} else {
+				$doImport = false;
+			}
 			
 			$statObj['type']               = $line[3];
 			$statObj['text']               = $line[4];
 			$statObj['recipient']          = $line[5];
 			$statObj['recipient_account']  = $line[6];
 			$statObj['recipient_bankcode'] = $line[7];
-			$statObj['value']              = $line[8];
+			$statObj['value']              = str_replace(",", ".", $line[8]);
 			$statObj['currency']           = $line[9];
 			$statObj['info']               = $line[10];
 			
-			if( $valutaYMD < $lastValutaYMD) {
+			// TODO fix it! it doesn't work correct!!!
+			if( isset($lastValutaYMD) && $valutaYMD < $lastValutaYMD) {
+				echo "\ncanceled import: valutaYMD:$valutaYMD < lastValutaYMD:$lastValutaYMD";
 				$doImport = false;
-			} else if( $valutaYMD == $lastValutaYMD) {
+			} else if( isset($lastValutaYMD) && $valutaYMD == $lastValutaYMD) {
 				$checkFields = array('valuta','booking','type','text','recipient_account');
 				$identicalData = true;
-				foreach($checkFields as $checkField) {
-					if($lastData[$checkField] != $statObj[$checkField]) {
-						$identicalData = false;
+				foreach( $lastData as $lastDataRow ) {
+					foreach($checkFields as $checkField) {
+						if($lastDataRow->$checkField != $statObj[$checkField]) {
+							echo "\ncanceled import: ($lastValutaYMD) 1:".$lastDataRow->$checkField." != 2:".$statObj[$checkField];
+							$identicalData = false;
+							break;
+						}
+					}
+					if( !$identicalData ) {
 						break;
 					}
 				}
@@ -121,7 +143,7 @@ function addStatisticData() {
 				$movings = json_decode($movingsJSON);
 				//var_dump($movings);
 				foreach($movings as $moving) {
-					echo "<br>checking for'".$moving->matches."'";
+					//echo "\nchecking for'".$moving->matches."'";
 					$firstDayOfMonthTS = mktime(1,1,1,$valutaMM,1,$valutaYYYY);
 					$lastDayOfMonthTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY);
 					$toleranceLimitTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY)-(86400 * $moving->tolerance);
@@ -130,8 +152,7 @@ function addStatisticData() {
 						foreach($checkFields as $checkField) {
 							// echo "<br>CHECK: reg_exp:".$moving->matches." - field:".$statObj[$checkField];
 							if( preg_match("/".$moving->matches."/i", $statObj[$checkField], $matches) ) {
-								var_dump($matches);
-								echo "adding '".$moving->add_month."' month for:".$moving->matches;
+								//echo "\nadding '".$moving->add_month."' month for:".$moving->matches;
 								$statObj['month'] = date("Ym", strtotime("+".$moving->add_month." month ", $firstDayOfMonthTS));
 								break;
 							}
@@ -146,7 +167,12 @@ function addStatisticData() {
 					$statObj['month'] = $valutaYYYY.$valutaMM;
 				}
 				
-				$msg = saveStatisticData($statObj);
+				$returnMsg = saveStatisticData($statObj);
+				if( $response->status() != 200 ) {
+					break;
+				} else {
+					$countInserted++;
+				}
 			}
 			
 			//echo implode("|",$line);
@@ -155,7 +181,11 @@ function addStatisticData() {
 	}
 	
 	// TODO return count of inserted
-	echo '{"message":"'.$msg.'"}';
+	if( $response->status() != 200 ) {
+		echo '{"error":"'.$returnMsg.'"}';
+	} else {
+		echo '{"countInserted":'.$countInserted.'}';
+	}
 }
 
 // ********************************
@@ -187,21 +217,20 @@ function saveStatisticData($data) {
 		return '"error":{"text":'. $e->getMessage() .'}}'; 
 	}
 	
-	foreach($data as $row) {
-		$sql = "INSERT INTO csvdata (account, booking,valuta, type, text, recipient, recipient_account, recipient_bankcode, value, currency, info, month)
-							VALUES (:account, :booking, :valuta, :type, :text, :recipient, :recipient_account, :recipient_bankcode, :value, :currency, :info, :month)";
-		try {
-			$stmt = $db->prepare($sql);
-			
-			foreach($row as $key => $val) {
-				$stmt->bindParam($key, $val);
-			}
-			$stmt->execute();
-		} catch(PDOException $e) {
-			error_log($e->getMessage(), 3, '/var/tmp/php.log');
-			$response->status(400);
-			return '"error":{"text":'. $e->getMessage() .'}}';
+	$sql = "INSERT INTO csvdata (account, booking, valuta, type, text, recipient, recipient_account, recipient_bankcode, value, currency, info, month)
+						VALUES (:account, :booking, :valuta, :type, :text, :recipient, :recipient_account, :recipient_bankcode, :value, :currency, :info, :month)";
+	
+	try {
+		$stmt = $db->prepare($sql);
+		
+		foreach($data as $key => &$val) {
+			$stmt->bindParam($key, $val);
 		}
+		$stmt->execute();
+	} catch(PDOException $e) {
+		error_log($e->getMessage(), 3, 'php.log');
+		$response->status(400);
+		return '"error":{"text":'. $e->getMessage() .',db:'.var_export($data, true).'}';
 	}
 	
 	$db = null;
