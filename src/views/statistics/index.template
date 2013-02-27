@@ -40,7 +40,7 @@
 
 	<div class="tw-wrapper" ng:hide="account">
 		<div class="statLogo">
-			<img src="styles/images/moneyhouse.gif">
+			<img src="styles/images/money.png">
 		</div>
 	</div>
 </section>
