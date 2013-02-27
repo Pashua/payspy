@@ -29,9 +29,8 @@ function getStatisticsMonths() {
 	}
 }
 
-
 function addStatisticData() {
-	error_log('addaddStatisticData\n', 3, 'php.log');
+	error_log('addStatisticData\n', 3, 'php.log');
 	$request = Slim::getInstance()->request();
 	
 	if(!isset($_FILES['fileData'])) {
@@ -52,33 +51,48 @@ function addStatisticData() {
 	}
 	
 	if( count($csv) > 0 ) {
+		date_default_timezone_set("UTC");
 			
 		ob_start();
 		getMovings();
 		$movingsJSON = ob_get_contents();
 		ob_end_clean();
 		
-		date_default_timezone_set("UTC");
+		
+		$lastData = getLastDataRows($csv[0][0]);
+		$lastValuta = $lastData[0]->valuta;
+		$lastValutaDD   = substr($lastValuta, 0, 2);
+		$lastValutaMM   = substr($lastValuta, 3, 2);
+		$lastValutaYYYY = "20".substr($lastValuta, 6, 2);
+		# if the are no values in db the earliest import date is Jan. 1980
+		$lastValutaYMD      = $lastData ? $lastValutaYYYY.$lastValutaMM.$lastValutaDD : '198001';
+		
+		//var_dump($lastData);
+		//return;
+		
 		for ($i=1 ; $i < count($csv); $i++ ) {
 			$line = $csv[$i];
-			
-			// FIELDS: account,booking,valuta,type,text,recipient,recipient_account,recipient_bankcode,value,currency,info
-			
 			$statObj = array();
-			$statObj['account']            = $line[0];
+			$doImport = true;
+			
+			// *** FIELDS: account,booking,valuta,type,text,recipient,recipient_account,recipient_bankcode,value,currency,info
 			
 			$valuta = $line[2];
+			
+			$statObj['account']            = $line[0];
+			
 			$valutaDD   = substr($valuta, 0, 2);
 			$valutaMM   = substr($valuta, 3, 2);
 			$valutaYYYY = "20".substr($valuta, 6, 2);
+			$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
 			$valutaTS = strtotime($valutaYYYY.$valutaMM.$valutaDD);
-			$statObj['valuta']             = date("Y-d-mTG:i:sz", $valutaTS);
+			$statObj['valuta']             = date("Y-m-d", $valutaTS);
 			
 			$booking = $line[2];
 			$bookingDD = substr($valuta, 0, 2);
 			$bookingMM = substr($valuta, 3, 2);
 			$bookingTS = strtotime($valutaYYYY.$bookingMM.$bookingDD);
-			$statObj['booking']            = date("Y-d-mTG:i:sz", $bookingTS);
+			$statObj['booking']            = date("Y-m-d", $bookingTS);
 			
 			$statObj['type']               = $line[3];
 			$statObj['text']               = $line[4];
@@ -89,62 +103,110 @@ function addStatisticData() {
 			$statObj['currency']           = $line[9];
 			$statObj['info']               = $line[10];
 			
-			
-			$movings = json_decode($movingsJSON);
-			//var_dump($movings);
-			foreach($movings as $moving) {
-				echo "<br>checking for'".$moving->matches."'";
-				$lastDayOfMonthTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY);
-				$toleranceLimitTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY)-(86400 * $moving->tolerance);
-				if( $valutaTS <= $lastDayOfMonthTS && $valutaTS >= $toleranceLimitTS) {
-					$checkFields = array('type','text');
-					foreach($checkFields as $checkField) {
-						// TODO fix preg_match !!!
-						if( preg_match("/".$moving->matches."/i", $checkField, $matches) ) {
-							var_dump($matches);
-							echo "adding '".$moving->add_month."' month for:".$moving->matches;
-							$statObj['month'] = date("Y-m", strtotime($moving->add_month." month",$valutaTS));
-							break;
-						}
-					}
-					if( isset($statObj['month']) ) {
+			if( $valutaYMD < $lastValutaYMD) {
+				$doImport = false;
+			} else if( $valutaYMD == $lastValutaYMD) {
+				$checkFields = array('valuta','booking','type','text','recipient_account');
+				$identicalData = true;
+				foreach($checkFields as $checkField) {
+					if($lastData[$checkField] != $statObj[$checkField]) {
+						$identicalData = false;
 						break;
 					}
 				}
+				$doImport = !$identicalData;
 			}
 			
-			if( !isset($statObj['month']) ) {
-				$statObj['month'] = $valutaYYYY.$valutaMM;
+			if( $doImport ) {
+				$movings = json_decode($movingsJSON);
+				//var_dump($movings);
+				foreach($movings as $moving) {
+					echo "<br>checking for'".$moving->matches."'";
+					$firstDayOfMonthTS = mktime(1,1,1,$valutaMM,1,$valutaYYYY);
+					$lastDayOfMonthTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY);
+					$toleranceLimitTS = mktime(1,1,1,$valutaMM+1,0,$valutaYYYY)-(86400 * $moving->tolerance);
+					if( $valutaTS <= $lastDayOfMonthTS && $valutaTS >= $toleranceLimitTS) {
+						$checkFields = array('type','text');
+						foreach($checkFields as $checkField) {
+							// echo "<br>CHECK: reg_exp:".$moving->matches." - field:".$statObj[$checkField];
+							if( preg_match("/".$moving->matches."/i", $statObj[$checkField], $matches) ) {
+								var_dump($matches);
+								echo "adding '".$moving->add_month."' month for:".$moving->matches;
+								$statObj['month'] = date("Ym", strtotime("+".$moving->add_month." month ", $firstDayOfMonthTS));
+								break;
+							}
+						}
+						if( isset($statObj['month']) ) {
+							break;
+						}
+					}
+				}
+				
+				if( !isset($statObj['month']) ) {
+					$statObj['month'] = $valutaYYYY.$valutaMM;
+				}
+				
+				$msg = saveStatisticData($statObj);
 			}
 			
-			echo implode("|",$line);
-			print_r($statObj);
+			//echo implode("|",$line);
+			//print_r($statObj);
 		}
 	}
 	
-	return;
-	
-	/*
-	$sql = "INSERT INTO csvdata (account, booking,valuta, type, text, recipient, recipient_account, recipient_bankcode, value, currency, info,
-								month, category) VALUES (:name, :grapes, :country, :region, :year, :description)";
+	// TODO return count of inserted
+	echo '{"message":"'.$msg.'"}';
+}
+
+// ********************************
+
+function getLastDataRows($account) {
+	$sql = "SELECT valuta, booking, type, text, recipient_account
+			FROM csvdata
+			where valuta = ( SELECT MAX(VALUTA) FROM CSVDATA WHERE account=:account )";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  
-		$stmt->bindParam("name", $wine->name);
-		$stmt->bindParam("grapes", $wine->grapes);
-		$stmt->bindParam("country", $wine->country);
-		$stmt->bindParam("region", $wine->region);
-		$stmt->bindParam("year", $wine->year);
-		$stmt->bindParam("description", $wine->description);
+		$stmt->bindParam("account", $account);
 		$stmt->execute();
-		$wine->id = $db->lastInsertId();
+		$lastData = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$db = null;
-		echo json_encode($wine); 
+		return $lastData;
 	} catch(PDOException $e) {
-		error_log($e->getMessage(), 3, '/var/tmp/php.log');
-		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
+		return 'error:'. $e->getMessage();
 	}
-	*/
+}
+
+function saveStatisticData($data) {
+	$response = Slim::getInstance()->response();
+	
+	try {
+		$db = getConnection();
+	} catch(PDOException $e) {
+		$response->status(400);
+		return '"error":{"text":'. $e->getMessage() .'}}'; 
+	}
+	
+	foreach($data as $row) {
+		$sql = "INSERT INTO csvdata (account, booking,valuta, type, text, recipient, recipient_account, recipient_bankcode, value, currency, info, month)
+							VALUES (:account, :booking, :valuta, :type, :text, :recipient, :recipient_account, :recipient_bankcode, :value, :currency, :info, :month)";
+		try {
+			$stmt = $db->prepare($sql);
+			
+			foreach($row as $key => $val) {
+				$stmt->bindParam($key, $val);
+			}
+			$stmt->execute();
+		} catch(PDOException $e) {
+			error_log($e->getMessage(), 3, '/var/tmp/php.log');
+			$response->status(400);
+			return '"error":{"text":'. $e->getMessage() .'}}';
+		}
+	}
+	
+	$db = null;
+	$response->status(200);
+	return "ok";
 }
 
 ?>
