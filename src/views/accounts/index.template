@@ -7,7 +7,7 @@
 			<div ng:switch-when="list">
 				<span class="tw-headline">
 					<h1>Wähle hier Dein Konto aus...</h1>
-					<span>Sollte dein Konto nicht in der Auswahl sein, dann erstelle <a ng:href="#/accounts?mode=add">hier</a> ein neues!</span>
+					<span>Sollte dein Konto nicht in der Auswahl sein, dann erstelle <a ng:href="#/stats?mode=add">hier</a> ein neues!</span>
 				</span>
 				
 				
