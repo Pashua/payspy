@@ -73,40 +73,39 @@ function addStatisticData() {
 			$lastValutaYMD  = $lastData ? str_replace("-", "", $lastValuta) : '';
 		}
 		
-		//var_dump($lastData);
+		// *** Do not import data of the latest valuta date and check if
+		//     valuta and booking exists... 
+		//var_dump($csv);
+		$csv = getImportableData($csv);
+		//echo "\n\n\n******************************\n\n\n";
+		//var_dump($csv);
 		//return;
 		
-		for ($i=1 ; $i < count($csv); $i++ ) {
+		$prevValuta = '';
+		
+		// *** process data reverse...
+		for ($i=count($csv)-1 ; $i >= 0; $i-- ) {
 			$line = $csv[$i];
 			$statObj = array();
 			$doImport = true;
 			
 			// *** FIELDS: account,booking,valuta,type,text,recipient,recipient_account,recipient_bankcode,value,currency,info
 			
-			$valuta = $line[2];
-			
 			$statObj['account']            = $line[0];
 			
-			if( $valuta ) {
-				$valutaDD   = substr($valuta, 0, 2);
-				$valutaMM   = substr($valuta, 3, 2);
-				$valutaYYYY = "20".substr($valuta, 6, 2);
-				$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
-				$valutaTS = strtotime($valutaYYYY.$valutaMM.$valutaDD);
-				$statObj['valuta']             = date("Y-m-d", $valutaTS);
+			$valuta = $line[2];
+			$valutaDD   = substr($valuta, 0, 2);
+			$valutaMM   = substr($valuta, 3, 2);
+			$valutaYYYY = "20".substr($valuta, 6, 2);
+			$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
+			$valutaTS = strtotime($valutaYYYY.$valutaMM.$valutaDD);
+			$statObj['valuta']             = date("Y-m-d", $valutaTS);
 			
-				$booking = $line[2];
-				if( $booking ) {
-					$bookingDD = substr($booking, 0, 2);
-					$bookingMM = substr($booking, 3, 2);
-					$bookingTS = strtotime($valutaYYYY.$bookingMM.$bookingDD);
-					$statObj['booking']            = date("Y-m-d", $bookingTS);
-				} else {
-					$doImport = false;
-				}
-			} else {
-				$doImport = false;
-			}
+			$booking = $line[1];
+			$bookingDD = substr($booking, 0, 2);
+			$bookingMM = substr($booking, 3, 2);
+			$bookingTS = strtotime($valutaYYYY.$bookingMM.$bookingDD);
+			$statObj['booking']            = date("Y-m-d", $bookingTS);
 			
 			$statObj['type']               = $line[3];
 			$statObj['text']               = $line[4];
@@ -117,26 +116,10 @@ function addStatisticData() {
 			$statObj['currency']           = $line[9];
 			$statObj['info']               = $line[10];
 			
-			// TODO fix it! it doesn't work correct!!!
-			if( isset($lastValutaYMD) && $valutaYMD < $lastValutaYMD) {
-				echo "\ncanceled import: valutaYMD:$valutaYMD < lastValutaYMD:$lastValutaYMD";
+			// *** prevent duplicate data...
+			if( isset($lastValutaYMD) && $valutaYMD <= $lastValutaYMD) {
+				//echo "\ncanceled import: valutaYMD:$valutaYMD < lastValutaYMD:$lastValutaYMD";
 				$doImport = false;
-			} else if( isset($lastValutaYMD) && $valutaYMD == $lastValutaYMD) {
-				$checkFields = array('valuta','booking','type','text','recipient_account');
-				$identicalData = true;
-				foreach( $lastData as $lastDataRow ) {
-					foreach($checkFields as $checkField) {
-						if($lastDataRow->$checkField != $statObj[$checkField]) {
-							echo "\ncanceled import: ($lastValutaYMD) 1:".$lastDataRow->$checkField." != 2:".$statObj[$checkField];
-							$identicalData = false;
-							break;
-						}
-					}
-					if( !$identicalData ) {
-						break;
-					}
-				}
-				$doImport = !$identicalData;
 			}
 			
 			if( $doImport ) {
@@ -168,6 +151,7 @@ function addStatisticData() {
 				}
 				
 				$returnMsg = saveStatisticData($statObj);
+				
 				if( $response->status() != 200 ) {
 					break;
 				} else {
@@ -205,6 +189,34 @@ function getLastDataRows($account) {
 	} catch(PDOException $e) {
 		return 'error:'. $e->getMessage();
 	}
+}
+
+function getImportableData($csv) {
+	$returnData = array();
+	$latestImpDate = '';
+	for ($i=1 ; $i < count($csv); $i++ ) {
+		$row = $csv[$i];
+		
+		$booking = $row[1];
+		$valuta  = $row[2];
+		
+		if( $booking && $valuta ) {
+			$valutaDD   = substr($valuta, 0, 2);
+			$valutaMM   = substr($valuta, 3, 2);
+			$valutaYYYY = "20".substr($valuta, 6, 2);
+			$valutaYMD  = $valutaYYYY.$valutaMM.$valutaDD;
+			
+			if( $latestImpDate != '' && $valutaYMD != $latestImpDate ) {
+				array_push($returnData, $row);
+			}
+			
+			if( $latestImpDate == '') {
+				$latestImpDate = $valutaYMD;
+			}
+		}
+	}
+	
+	return $returnData;
 }
 
 function saveStatisticData($data) {
