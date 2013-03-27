@@ -12,13 +12,11 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
     # Controller and view should be active.
     ACTIVE    : 'active'
     # Controller is loading data, view should be active.
-    RUNNING   : 'running'
+    LOADING   : 'loading'
     # Controller has finished, view should be active.
     READY     : 'ready'
-    # Controller and view are not active. Just like init, but after an activation life cycle
-    NON_ACTIVE: 'non_active'
 
-  controllers.controller 'statisticController', ['$scope', '$rootScope', '$location', 'statisticService', 'accountService', '$timeout', ($scope, $rootScope, $location, statisticService, accountService, $timeout) ->
+  controllers.controller 'statisticController', ['$scope', '$rootScope', '$filter', 'statisticService', 'accountService', '$timeout', ($scope, $rootScope, $filter, statisticService, accountService, $timeout) ->
 
     ctrlElement = $('section.tw-statistics')
 
@@ -62,7 +60,7 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       if params.account and not $scope.account
         loadAccount(params.account)
 
-      loadStatistics()
+      loadStatisticsMonth()
 
 
     ######
@@ -76,17 +74,59 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
         msg = "Error #{status} on load account. Server-Message: '#{response.message}'"
         console.error msg
 
-    loadStatistics = () ->
-      console.log 'called loadStatistics'
-      $scope.months.state = STATES.RUNNING
+    loadStatisticsMonth = () ->
+      console.log 'called loadStatisticsMonth'
+      $scope.months.state = STATES.LOADING
       
-      request = statisticService.getMonths()
+      params =
+        account: $scope.account.id
+        dateFrom: if $scope.dateSelected.from then $filter('date')($scope.dateSelected.from, 'yyyy-MM-dd') else ''
+        dateTo: if $scope.dateSelected.to then $filter('date')($scope.dateSelected.to, 'yyyy-MM-dd') else ''
+      
+      request = statisticService.getMonths params
       request.success (data, status, headers, config) ->
         $scope.months.data  = data
         $scope.months.state = STATES.READY
       request.error (response, status) ->
-        msg = "Error #{status} on fetching statistic data. Server-Message: '#{response.message}'"
+        msg = "Error #{status} on fetching month statistic data. Server-Message: '#{response.message}'"
         console.error msg
+
+    loadStatisticsCategories = (month, scope, onSuccess) ->
+      console.log 'called loadStatisticsCategories'
+      scope.categories.state = STATES.LOADING
+      scope.errorMsg = ''
+      
+      params =
+        account: $scope.account.id
+        month: month
+      
+      request = statisticService.getCategories params
+      request.success (data, status, headers, config) ->
+        scope.categories.data  = data
+        scope.categories.state = STATES.READY
+        onSuccess()
+      request.error (response, status) ->
+        msg = "ERROR #{status} #{response.message}'"
+        scope.errorMsg = msg
+
+    loadStatisticsRawdata = (month, category, scope, onSuccess) ->
+      console.log 'called loadStatisticsRawdata'
+      scope.rawdata.state = STATES.LOADING
+      scope.errorMsg = ''
+      
+      params =
+        account: $scope.account.id
+        month: month
+        category: category
+      
+      request = statisticService.getRawdata params
+      request.success (data, status, headers, config) ->
+        scope.rawdata.data  = data
+        scope.rawdata.state = STATES.READY
+        onSuccess()
+      request.error (response, status) ->
+        msg = "ERROR #{status} #{response.message}'"
+        scope.errorMsg = msg
 
     releaseAccount = () ->
       $scope.newAccount  = data : []
@@ -131,25 +171,71 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
         $scope.$broadcast 'requestError', msg
 
     $scope.updateAccount = () ->
-      console.log 'updating the team...'
-      liveTeam = if $scope.team.id is $scope.updTeam.id then $scope.team
-      liveTeamOfTeams = (item for item in $scope.teams.data when item.id is $scope.updTeam.id)[0] # TODO utilize
+      console.log 'updating the Account...'
+      liveAccount = if $scope.account.id is $scope.updAccount.id then $scope.account
+      liveAccountOfAccounts = (item for item in $scope.accounts.data when item.id is $scope.updAccount.id)[0]
       
-      reqParams = angular.copy @updTeam
-      q = teamService.update reqParams, $scope.origTeam
-      q.success (team) ->
-        angular.extend liveTeam, team if liveTeam
-        angular.extend liveTeamOfTeams, team if liveTeamOfTeams
-        releaseTeam()
-        # hide and reset the modal dialog
-        modalDialog = ctrlElement.find('.hlx-modal:visible')
-        if modalDialog
-          modalDialog.modal "hide"
+      reqParams = angular.copy @updAccount
+      q = accountService.update reqParams, $scope.origAccount
+      q.success (account) ->
+        angular.extend liveAccount, team if liveAccount
+        angular.extend liveAccountOfAccounts, team if liveAccountOfAccounts
+        releaseAccount()
+        # hide update mask here...
       q.error (response) ->
-        console.info 'error updating team'
         msg = response.message?.toLowerCase() or 'error'
-        # the dialog should watch on requestError and show it
-        $scope.$broadcast 'requestError', msg
+        console.info 'error updating Account: '+msg
+
+    $scope.onLoadMonths = (month) ->
+      # initialize the new object
+      @months = state : STATES.LOADING, data : []
+      # load content
+      $timeout () ->
+        onSuccess = () -> $scope.showElement "#catData#{month}"
+        loadStatisticsMonth()
+      , 1
+
+    $scope.onLoadCategories = (month) ->
+      scope = this
+      @dataIsOpen = if @dataIsOpen is undefined then true else !@dataIsOpen
+      
+      if not @dataIsOpen
+        $scope.hideElement "#catData#{month}"
+      else
+        # initialize the new object
+        @categories = state : STATES.LOADING, data : []
+        # load content
+        $timeout () ->
+          onSuccess = () -> $scope.showElement "#catData#{month}"
+          loadStatisticsCategories(month, scope, onSuccess)
+        , 1
+    
+    $scope.onLoadRawData = (month, catId) ->
+      scope = this
+      @dataIsOpen = if @dataIsOpen is undefined then true else !@dataIsOpen
+      
+      if not @dataIsOpen
+        $scope.hideElement "#rawData#{catId}"
+      else
+        # initialize the new object
+        @rawdata = state : STATES.LOADING, data : []
+        # load content
+        $timeout () ->
+          onSuccess = () -> $scope.showElement "#rawData#{catId}"
+          loadStatisticsRawdata(month, catId, scope, onSuccess)
+        , 1
+    
+    # set in scope or not?!
+    $scope.showElement = (elemSel) ->
+      return unless $(elemSel).length
+      $timeout () ->
+        $(elemSel).show('blind')
+      , 1
+    
+    # set in scope or not?!
+    $scope.hideElement = (elemSel) ->
+      return unless $(elemSel).length
+      $(elemSel).hide('blind')
 
     ######
 

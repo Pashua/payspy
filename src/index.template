@@ -6,7 +6,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-		<title>Angular Fun</title>
+		<title>PaySpy</title>
 		<meta name="description" content="AngularJS Reference Architecture" />
 		<meta name="viewport" content="width=device-width" />
 
@@ -44,7 +44,7 @@
 		<header class="tw-primary">
 			<div class="tw-nav-items">
 				<div class="tw-left">
-					<a href="#">PaySpy</a>
+					<a href="#"><img src="styles/images/logo-32.png"><span class="tw-productname">PaySpy</span></a>
 				</div>
 				<div class="tw-right">
 					<a href="#/stats">Konto ändern</a>

@@ -12,7 +12,7 @@
 					<label>Kontonummer</label>
 				</div> 
 				<div class="tw-field">
-					<input type="text" ng:model="newAccount.data.account" class="tw-account" name="account" id="account" placeholder="Bitte Kontonummer ohne Leerzeichen eingeben">
+					<input type="text" ng:model="newAccount.data.id" class="tw-account" name="account" id="account" placeholder="Bitte Kontonummer ohne Leerzeichen eingeben">
 				</div>
 			</div>
 			

@@ -13,7 +13,7 @@
 				
 				<select ng:model="accountId">
 					<option value="">Konto auswählen...</option>
-					<option ng-repeat="a in accounts.data" ng-selected="a.account==accountId" value="{{a.account}}">{{a.account}} - {{a.name}}</option>
+					<option ng-repeat="a in accounts.data" ng-selected="a.id==accountId" value="{{a.id}}">{{a.id}} - {{a.name}}</option>
 				</select>
 				
 				<span ng:show="accountId">

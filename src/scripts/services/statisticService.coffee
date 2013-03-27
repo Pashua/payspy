@@ -15,6 +15,26 @@ define ['libs/angular', 'services/services', 'libs/angularResource'], (angular, 
           'Accept': 'application/json'
         params: params
 
+    getCategories = (params) ->
+      month = params.month
+      $http
+        method : 'GET'
+        url    : defaults.url + "/months/#{month}/categories"
+        headers:
+          'Accept': 'application/json'
+        params: params
+
+    getRawdata = (params) ->
+      month = params.month
+      category = params.category
+      
+      $http
+        method : 'GET'
+        url    : defaults.url + "/months/#{month}/categories/#{category}/rawdata"
+        headers:
+          'Accept': 'application/json'
+        params: params
+
     getById = (id) ->
       $http
         method : 'GET'
@@ -37,5 +57,5 @@ define ['libs/angular', 'services/services', 'libs/angularResource'], (angular, 
         data : data
 
     # API
-    {getMonths, getById, create, update}
+    {getMonths, getCategories, getRawdata, getById, create, update}
   ]

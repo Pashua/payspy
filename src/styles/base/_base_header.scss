@@ -3,14 +3,18 @@ body > header.tw-primary {
   
   .tw-nav-items {
     line-height: 40px;
-    padding: 15px;
+    padding: 5px 0px;
     color: #ffffff;
     
     a { color: #ffffff; font-family: comic sans ms}
     
     > .tw-left {
       text-align: left;
-      font-size: 30px;
+      font-size: 24px;
+      
+      .tw-productname {
+        padding-left: 10px;
+      }
     }
     > .tw-right {
       text-align: right;

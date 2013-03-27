@@ -2,7 +2,7 @@
 
 	<div class="tw-wrapper" ng:show="account">
 		<span class="tw-headline">
-			<h1>{{account.account}} - {{account.name}}</h1>
+			<h1>{{account.id}} - {{account.name}}</h1>
 			<span></span>
 		</span>
 		
@@ -13,25 +13,66 @@
 				<input type="text" ng:model="dateSelected.from" ui-date class="tw-date-from" name="date-from" id="date-from">
 				<span>Datum bis</span>
 				<input type="text" ng:model="dateSelected.to" ui-date class="tw-date-from" name="date-from" id="date-from">
+				<span class="btn btn-primary" ng:click="onLoadMonths()">Neu laden...</span>
 			</div>
 		</div>
 		
 		<!-- File upload -->
-		<tw:file-upload waitfor="account" url="/api/statistics" done=""></tw:file-upload>
+		<tw:file-upload waitfor="account" url="/api/statistics/{{account.id}}" done=""></tw:file-upload>
 		
 		<!-- Statistik Daten -->
 		<div class="tw-data">
-			<div class="tw-month" ng:repeat="month in months.data">
-				<div class="tw-overview">
-					<span class="tw-title" type="acc" data-toggle="collapse" data-target="#{{month.name}}">{{month.name}}</span>
-					<span class="tw-val-h">{{month.value_h | number:2}}</span>
-					<span class="tw-val-s">{{month.value_s | number:2}}</span>
-					<span class="tw-sum">{{(month.value_h*1)+(month.value_s*1) | number:2}}</span>
+			<div class="tw-month" ng:repeat="month in months.data" ng:init="dataIsOpen=false">
+				
+				<div class="tw-newyear" ng:show="(month.date | date:'M')==12"></div>
+				
+				<div class="tw-overview" ng:class="{'tw-colored':!dataIsOpen}" ng:click="onLoadCategories(month.name)">
+					<div class="tw-title">{{month.date | date:'yyyy MMMM'}}</div>
+					<div class="tw-loading">
+						<span ng:show="errorMsg">{{errorMsg}}</span>
+						<span ng:show="categories.state=='loading'">...laden...</span>
+					</div>
+					<div class="tw-val-h tw-plus">{{month.value_h | number:2}}</div>
+					<div class="tw-val-s tw-minus">{{month.value_s | number:2}}</div>
+					<div class="tw-sum" ng:class="{'tw-plus':(month.value_h*1)+(month.value_s*1)>0, 'tw-minus':(month.value_h*1)+(month.value_s*1)<0}">{{(month.value_h*1)+(month.value_s*1) | number:2}}</div>
 				</div>
-				<div id="{{month.name}}" class="tw-accordion-body collapse">
-					<div class="accordion-inner">
-						TODO: Content of Categories Values<br>
-						sub-accordion...
+				<div id="catData{{month.name}}" class="tw-categories">
+					<div class="tw-category" ng:repeat="cat in categories.data" ng:init="dataIsOpen=false">
+						<div class="tw-overview tw-colored" ng:click="onLoadRawData(month.name, cat.id)">
+							<div class="tw-name" ng:show="cat.name">{{cat.name}}</div>
+							<div class="tw-name" ng:hide="cat.name">
+								<span ng:show="cat.sh=='S'">SONSTIGE</span>
+								<span ng:show="cat.sh=='H'">HABEN</span>
+							</div>
+							<div class="tw-loading">
+								<span ng:show="errorMsg">{{errorMsg}}</span>
+								<span ng:show="rawdata.state=='loading'">...laden...</span>
+							</div>
+							<div class="tw-wrapper" ng:show="cat.sh=='H'">
+								<div class="tw-value-h tw-plus">{{cat.value | number:2}}</div>
+								<div class="tw-value-s tw-minus"></div>
+								<div class="tw-value-sum"></div>
+							</div>
+							<div class="tw-wrapper" ng:show="cat.sh=='S'">
+								<div class="tw-value-h tw-plus"></div>
+								<div class="tw-value-s tw-minus">{{cat.value | number:2}}</div>
+								<div class="tw-value-sum"></div>
+							</div>
+						</div>
+						<div id="rawData{{cat.id}}" class="tw-rawdata">
+							<div class="tw-raw" ng:repeat="raw in rawdata.data">
+								<div class="tw-raw-id">{{raw.id}}</div>
+								<div class="tw-raw-booking">{{raw.booking}}</div>
+								<div class="tw-raw-valuta">{{raw.valuta}}</div>
+								<div class="tw-raw-type">{{raw.type}}</div>
+								<div class="tw-raw-text">{{raw.text}}</div>
+								<div class="tw-raw-recipient">{{raw.recipient}}</div>
+								<div class="tw-raw-recipient_account">{{raw.recipient_account}}</div>
+								<div class="tw-raw-value">{{raw.value | number:2}}</div>
+								<div class="tw-raw-currency">{{raw.currency}}</div>
+								<div class="tw-raw-inserted">{{raw.inserted | date}}</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

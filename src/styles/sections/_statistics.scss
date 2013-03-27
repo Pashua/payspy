@@ -1,6 +1,24 @@
 // ---------------------------------------------------------------------------
 // accounts
 
+$monthHeight: 50px;
+$monthFontHeight: 20px;
+
+$categoryHeight: 30px;
+$categoryFontHeight: 16px;
+
+$rawdataHeight: 30px;
+$rawdataFontHeight: 11px;
+
+.tw-colored {
+  .tw-plus {
+    color: green;
+  }
+  .tw-minus {
+    color: red;
+  }
+}
+
 section.tw-statistics {
   margin-top: auto;
   
@@ -8,6 +26,7 @@ section.tw-statistics {
     font-size: 20px;
     input {
       width: 100px;
+      margin-bottom: 0px;
     }
   }
   
@@ -16,29 +35,105 @@ section.tw-statistics {
     
     .tw-month {
       
-      .tw-overview {
+      .tw-newyear {
         display: block;
-        height: 40px;
-        line-height: 40px;
-        font-size: 20px;
+        height: 1px;
+        line-height: 1px;
+        margin: 30px 0px;
+        background-color: #cccccc;
+      }
+      
+      > .tw-overview {
+        display: block;
+        height: $monthHeight;
+        line-height: $monthHeight;
+        font-size: $monthFontHeight;
+        cursor: pointer;
         
         .tw-title {
-          @include span-columns(12, 24);
-          cursor: pointer;
+          @include span-columns(5, 24);
+          height: $monthHeight;
+        }
+        .tw-loading {
+          @include span-columns(7, 24);
+          height: $monthHeight;
+          text-align: center;
         }
         .tw-val-h {
           @include span-columns(4, 24);
+          height: $monthHeight;
           text-align: right;
-          color: green;
         }
         .tw-val-s {
           @include span-columns(4, 24);
+          height: $monthHeight;
           text-align: right;
-          color: red;
         }
         .tw-sum {
           @include span-columns(4 omega, 24);
+          height: $monthHeight;
           text-align: right;
+        }
+      }
+      .tw-categories {
+        display: none;
+        
+        .tw-category {
+          //border-top: 1px solid #ddd;
+          border-bottom: 1px solid #ddd;
+          
+          > .tw-overview {
+            height: $categoryHeight;
+            line-height: $categoryHeight;
+            font-size: $categoryFontHeight;
+            @include background-image(linear-gradient(#f5f5f5, #eeeeee));
+            
+            .tw-name {
+              @include span-columns(5, 24);
+              height: $categoryHeight;
+              cursor: pointer;
+            }
+            .tw-loading {
+              @include span-columns(7, 24);
+              height: $categoryHeight;
+              text-align: center;
+            }
+            .tw-value-h {
+              @include span-columns(4, 24);
+              height: $categoryHeight;
+              text-align: right;
+            }
+            .tw-value-s {
+              @include span-columns(4, 24);
+              height: $categoryHeight;
+              text-align: right;
+            }
+            .tw-value-sum {
+              @include span-columns(4 omega, 24);
+              height: $categoryHeight;
+              text-align: right;
+            }
+          }
+          .tw-raw {
+            height: $rawdataHeight;
+            //line-height: $rawdataHeight;
+            font-size: $rawdataFontHeight;
+            > div {
+              height: $rawdataHeight;
+              line-height: $rawdataHeight/2;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .tw-raw-id { @include span-columns(1, 24); }
+            .tw-raw-booking { @include span-columns(2, 24); }
+            .tw-raw-valuta { @include span-columns(2, 24); }
+            .tw-raw-text { @include span-columns(7, 24); }
+            .tw-raw-recipient { @include span-columns(4, 24); font-weight: bold;}
+            .tw-raw-recipient_account { @include span-columns(2, 24); }
+            .tw-raw-value { @include span-columns(2, 24); text-align:right;}
+            .tw-raw-currency { @include span-columns(1, 24); }
+            .tw-raw-type { @include span-columns(3 omega, 24); text-align:right;}
+          }
         }
       }
     }
