@@ -1,0 +1,15 @@
+<div class="popoverMarkStat">
+	<form name="markStatForm" ng:submit="markStatisticItem(raw.id)">
+		
+		<div class="tw-wrapper">
+			<div class="tw-field">
+				<textarea ng:model="markStatItem.notes" placeholder="Hier können Sie eine Notiz eintragen..."></textarea>
+			</div>
+		</div>
+		
+		<div class="form-actions">
+			<button type="button" class="btn" ng-click="dismiss()">Abbrechen</button>
+			<button class="btn btn-primary" type="submit" ng-click="dismiss()">Jetzt markieren</button>
+		</div>
+	</form>
+</div>

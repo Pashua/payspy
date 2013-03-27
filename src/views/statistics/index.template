@@ -36,6 +36,17 @@
 					<div class="tw-val-s tw-minus">{{month.value_s | number:2}}</div>
 					<div class="tw-sum" ng:class="{'tw-plus':(month.value_h*1)+(month.value_s*1)>0, 'tw-minus':(month.value_h*1)+(month.value_s*1)<0}">{{(month.value_h*1)+(month.value_s*1) | number:2}}</div>
 				</div>
+				<div id="stickyData{{month.name}}" class="tw-sticky-data">
+					<div class="tw-sticky-item" ng:repeat="stickyItem in stickyData.data">
+						<div class="tw-raw-id">{{stickyItem.id}}</div>
+						<div class="tw-raw-valuta">{{stickyItem.valuta}}</div>
+						<div class="tw-raw-notes">{{stickyItem.notes}}</div>
+						<div class="tw-raw-value">{{stickyItem.value | number:2}}</div>
+						<div class="tw-raw-currency">{{stickyItem.currency}}</div>
+						<div class="tw-raw-empty">&nbsp;</div>
+						<!-- <div class="tw-action"><a class="btn btn-mini btn-success" href bs-popover="'views/statistics/popover_mark.html'" data-container="body" data-title="Umsatz markieren" data-placement="bottom"><i class="icon-eye-open"></i> markieren</a></div> -->
+					</div>
+				</div>
 				<div id="catData{{month.name}}" class="tw-categories">
 					<div class="tw-category" ng:repeat="cat in categories.data" ng:init="dataIsOpen=false">
 						<div class="tw-overview tw-colored" ng:click="onLoadRawData(month.name, cat.id)">
@@ -59,18 +70,19 @@
 								<div class="tw-value-sum"></div>
 							</div>
 						</div>
-						<div id="rawData{{cat.id}}" class="tw-rawdata">
-							<div class="tw-raw" ng:repeat="raw in rawdata.data">
+						<div id="rawData{{month.name}}-{{cat.id}}" class="tw-rawdata">
+							<div class="tw-raw" ng:class="{'tw-sticky':raw.sticky}" ng:repeat="raw in rawdata.data">
 								<div class="tw-raw-id">{{raw.id}}</div>
 								<div class="tw-raw-booking">{{raw.booking}}</div>
 								<div class="tw-raw-valuta">{{raw.valuta}}</div>
-								<div class="tw-raw-type">{{raw.type}}</div>
 								<div class="tw-raw-text">{{raw.text}}</div>
 								<div class="tw-raw-recipient">{{raw.recipient}}</div>
 								<div class="tw-raw-recipient_account">{{raw.recipient_account}}</div>
 								<div class="tw-raw-value">{{raw.value | number:2}}</div>
 								<div class="tw-raw-currency">{{raw.currency}}</div>
-								<div class="tw-raw-inserted">{{raw.inserted | date}}</div>
+								<!-- <div class="tw-raw-inserted">{{raw.inserted | date}}</div> -->
+								<div class="tw-raw-type">{{raw.type}}</div>
+								<div class="tw-action"><a class="btn btn-mini btn-success" href bs-popover="'views/statistics/popover_mark.html'" data-container="body" data-title="Umsatz markieren" data-placement="bottom"><i class="icon-eye-open"></i> markieren</a></div>
 							</div>
 						</div>
 					</div>

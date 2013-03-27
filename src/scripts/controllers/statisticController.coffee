@@ -25,6 +25,8 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       to : null
 
     $scope.months = state : STATES.ACTIVE, data : []
+    
+    $scope.markStatItem = {}
 
     $scope.lastRequest =
       params: {}
@@ -108,7 +110,25 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       request.error (response, status) ->
         msg = "ERROR #{status} #{response.message}'"
         scope.errorMsg = msg
-
+    
+    loadStatisticsStickyData = (month, scope, onSuccess) ->
+      console.log 'called loadStatisticsStickyData'
+      scope.stickyData.state = STATES.LOADING
+      scope.errorMsg = ''
+      
+      params =
+        account: $scope.account.id
+        month: month
+      
+      request = statisticService.getStickyRawdata params
+      request.success (data, status, headers, config) ->
+        scope.stickyData.data  = data
+        scope.stickyData.state = STATES.READY
+        onSuccess()
+      request.error (response, status) ->
+        msg = "ERROR #{status} #{response.message}'"
+        scope.errorMsg = msg
+    
     loadStatisticsRawdata = (month, category, scope, onSuccess) ->
       console.log 'called loadStatisticsRawdata'
       scope.rawdata.state = STATES.LOADING
@@ -153,38 +173,14 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       ACTIONS
     ###
 
-    $scope.addAccount = () ->
-      console.log 'creating the team...'
-      reqParams = angular.copy @newTeam
-      q = teamService.create reqParams
+    $scope.markStatisticItem = (id) ->
+      console.log "mark statistic item... id:#{id}"
+      reqParams = angular.copy @markStatItem
+      q = statisticService.markItem id, reqParams.notes
       q.success (team) ->
-        $scope.teams.data.push team
-        releaseTeam()
-        # hide and reset the modal dialog
-        modalDialog = ctrlElement.find('.hlx-modal:visible')
-        if modalDialog
-          modalDialog.modal "hide"
+        # TODO something...
       q.error (response) ->
-        console.info 'error creating team'
-        msg = response.message?.toLowerCase() or 'error'
-        # the dialog should watch on requestError and show it
-        $scope.$broadcast 'requestError', msg
-
-    $scope.updateAccount = () ->
-      console.log 'updating the Account...'
-      liveAccount = if $scope.account.id is $scope.updAccount.id then $scope.account
-      liveAccountOfAccounts = (item for item in $scope.accounts.data when item.id is $scope.updAccount.id)[0]
-      
-      reqParams = angular.copy @updAccount
-      q = accountService.update reqParams, $scope.origAccount
-      q.success (account) ->
-        angular.extend liveAccount, team if liveAccount
-        angular.extend liveAccountOfAccounts, team if liveAccountOfAccounts
-        releaseAccount()
-        # hide update mask here...
-      q.error (response) ->
-        msg = response.message?.toLowerCase() or 'error'
-        console.info 'error updating Account: '+msg
+        # TODO something...
 
     $scope.onLoadMonths = (month) ->
       # initialize the new object
@@ -202,12 +198,20 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       if not @dataIsOpen
         $scope.hideElement "#catData#{month}"
       else
-        # initialize the new object
+        # initialize the new categories-object
         @categories = state : STATES.LOADING, data : []
-        # load content
+        # initialize the new sticky-data-object
+        @stickyData = state : STATES.LOADING, data : []
+        
+        # load categories
         $timeout () ->
           onSuccess = () -> $scope.showElement "#catData#{month}"
           loadStatisticsCategories(month, scope, onSuccess)
+        , 1
+        # load sticky-data
+        $timeout () ->
+          onSuccess = () -> $scope.showElement "#stickyData#{month}"
+          loadStatisticsStickyData(month, scope, onSuccess)
         , 1
     
     $scope.onLoadRawData = (month, catId) ->
@@ -215,13 +219,13 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       @dataIsOpen = if @dataIsOpen is undefined then true else !@dataIsOpen
       
       if not @dataIsOpen
-        $scope.hideElement "#rawData#{catId}"
+        $scope.hideElement "#rawData#{month}-#{catId}"
       else
         # initialize the new object
         @rawdata = state : STATES.LOADING, data : []
         # load content
         $timeout () ->
-          onSuccess = () -> $scope.showElement "#rawData#{catId}"
+          onSuccess = () -> $scope.showElement "#rawData#{month}-#{catId}"
           loadStatisticsRawdata(month, catId, scope, onSuccess)
         , 1
     

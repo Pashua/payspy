@@ -75,6 +75,50 @@ section.tw-statistics {
           text-align: right;
         }
       }
+      
+      .tw-sticky-item {
+        position: relative;
+        height: $rawdataHeight;
+        border-bottom: 1px solid #eee;
+        //line-height: $rawdataHeight;
+        font-size: $rawdataFontHeight;
+        &.tw-sticky {
+          background-color: #D9EDF7;
+        }
+        > div {
+          height: $rawdataHeight;
+          line-height: $rawdataHeight/2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .tw-raw-id { @include span-columns(1, 24); }
+        .tw-raw-valuta { @include span-columns(2, 24); }
+        .tw-raw-notes { @include span-columns(15, 24); }
+        .tw-raw-value { @include span-columns(2, 24); text-align:right;}
+        .tw-raw-currency { @include span-columns(1, 24); }
+        .tw-raw-empty { @include span-columns(3 omega, 24);}
+        
+        .tw-action {
+          //display: none;
+          visibility:hidden;
+          opacity:0;
+          transition:visibility 0s linear 0.5s,opacity 0.5s linear;
+          position: absolute;
+          right: 0px;
+          padding-left: 10px;
+          line-height: $rawdataHeight;
+          text-align: right;
+          background-color: #fff;
+          background-color: rgba(#ffffff, 0.7);
+
+        }
+        &:hover .tw-action {
+          //display: block;
+          visibility:visible;
+          opacity:1;
+        }
+      }
+      
       .tw-categories {
         display: none;
         
@@ -115,9 +159,14 @@ section.tw-statistics {
             }
           }
           .tw-raw {
+            position: relative;
             height: $rawdataHeight;
+            border-bottom: 1px solid #eee;
             //line-height: $rawdataHeight;
             font-size: $rawdataFontHeight;
+            &.tw-sticky {
+              background-color: #D9EDF7;
+            }
             > div {
               height: $rawdataHeight;
               line-height: $rawdataHeight/2;
@@ -133,12 +182,32 @@ section.tw-statistics {
             .tw-raw-value { @include span-columns(2, 24); text-align:right;}
             .tw-raw-currency { @include span-columns(1, 24); }
             .tw-raw-type { @include span-columns(3 omega, 24); text-align:right;}
+            
+            .tw-action {
+              //display: none;
+              visibility:hidden;
+              opacity:0;
+              transition:visibility 0s linear 0.5s,opacity 0.5s linear;
+              position: absolute;
+              right: 0px;
+              padding-left: 10px;
+              line-height: $rawdataHeight;
+              text-align: right;
+              background-color: #fff;
+              background-color: rgba(#ffffff, 0.7);
+
+            }
+            &:hover .tw-action {
+              //display: block;
+              visibility:visible;
+              opacity:1;
+            }
           }
         }
       }
     }
   }
-  
+
   .statLogo {
     width: 100%;
     text-align: center;
@@ -146,5 +215,13 @@ section.tw-statistics {
     > img {
       margin: 10px;
     }
+  }
+}
+
+.popover .popoverMarkStat {
+  // overrides bootstrap...
+  .form-actions {
+    margin: 0 -14px -29px;
+    padding: 9px 10px 10px;
   }
 }

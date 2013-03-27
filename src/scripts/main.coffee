@@ -48,7 +48,7 @@ requirejs(
     'jquery.maskedinput'        : (deps: ['jquery'])
     'libs/angular-resource'     : (deps: ['libs/angular'])
     'libs/angular-ui'           : (deps: ['libs/angular', 'jquery.maskedinput'])
-    'libs/angular-strap'        : (deps: ['libs/angular'])
+    'libs/angular-strap'        : (deps: ['libs/angular', 'twitter-bootstrap-popover'])
     'angular-locale'            : (deps: ['libs/angular'])
     
   ([

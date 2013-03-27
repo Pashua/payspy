@@ -35,6 +35,17 @@ define ['libs/angular', 'services/services', 'libs/angularResource'], (angular, 
           'Accept': 'application/json'
         params: params
 
+    getStickyRawdata = (params) ->
+      month = params.month
+      category = params.category
+      
+      $http
+        method : 'GET'
+        url    : defaults.url + "/months/#{month}/sticky"
+        headers:
+          'Accept': 'application/json'
+        params: params
+
     getById = (id) ->
       $http
         method : 'GET'
@@ -48,14 +59,13 @@ define ['libs/angular', 'services/services', 'libs/angularResource'], (angular, 
         url    : defaults.url
         data : params
 
-    update = (params, original) ->
-      dataDiff = $filter 'diffEntity'
-      data = dataDiff params, original, modelAttributes
+    markItem = (id, notes) ->
+      data = notes: notes
       $http
         method : 'PUT'
-        url    : defaults.url + '/' + params.id
+        url    : defaults.url + '/raw/' + id
         data : data
 
     # API
-    {getMonths, getCategories, getRawdata, getById, create, update}
+    {getMonths, getCategories, getRawdata, getStickyRawdata, getById, create, markItem}
   ]
