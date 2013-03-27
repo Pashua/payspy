@@ -7,13 +7,13 @@ DROP TABLE IF EXISTS `ACCOUNTS`;
 -- Table structure for table `ACCOUNTS`
 --
 CREATE TABLE `ACCOUNTS` (
-  `account` varchar(10) NOT NULL,
+  `id` varchar(10) NOT NULL,
   `name` varchar(255),
   `start_date` date,
   `start_value` FLOAT(8,2),
   `updated` TIMESTAMP NULL DEFAULT NULL,
   `inserted` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`account`)
+  PRIMARY KEY (`id`)
 );
 --
 -- Table structure for table `CATEGORIES`
@@ -65,6 +65,6 @@ CREATE TABLE `CSVDATA` (
   `category` INT,
   
   PRIMARY KEY (`id`),
-  FOREIGN KEY (account) REFERENCES ACCOUNTS(account),
+  FOREIGN KEY (account) REFERENCES ACCOUNTS(id),
   FOREIGN KEY (category) REFERENCES CATEGORIES(id)
 );

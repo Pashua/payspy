@@ -16,7 +16,7 @@ function getAccounts() {
 }
 
 function getAccount($id) {
-	$sql = "SELECT * FROM accounts WHERE account=:id";
+	$sql = "SELECT * FROM accounts WHERE id=:id";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  
@@ -34,7 +34,7 @@ function addAccount() {
 	error_log('addAccount\n', 3, '/var/tmp/php.log');
 	$request = Slim::getInstance()->request();
 	$account = json_decode($request->getBody());
-	$sql = "INSERT INTO accounts (account, name, start_date, start_value) VALUES (:account, :name, :start_date, :start_value)";
+	$sql = "INSERT INTO accounts (id, name, start_date, start_value) VALUES (:account, :name, :start_date, :start_value)";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  
@@ -56,7 +56,7 @@ function updateAccount($id) {
 	$request = Slim::getInstance()->request();
 	$body = $request->getBody();
 	$account = json_decode($body);
-	$sql = "UPDATE accounts SET account=:account, name=:name, start_date=:startDate, start_value=:startValue WHERE id=:id";
+	$sql = "UPDATE accounts SET id=:account, name=:name, start_date=:startDate, start_value=:startValue WHERE id=:id";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);  

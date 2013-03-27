@@ -13,7 +13,9 @@ $app->get('/accounts/:id',	'getAccount');
 
 # ********** Statistics*********
 $app->get('/statistics/months', 'getStatisticsMonths');
-$app->post('/statistics',	'addStatisticData');
+$app->get('/statistics/months/:month/categories', 'getStatisticsCategories');
+$app->get('/statistics/months/:month/categories/:category/rawdata', 'getStatisticsRawdata');
+$app->post('/statistics/:account', 'addStatisticData');
 # ******************************
 $app->run();
 
