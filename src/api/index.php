@@ -15,6 +15,8 @@ $app->get('/accounts/:id',	'getAccount');
 $app->get('/statistics/months', 'getStatisticsMonths');
 $app->get('/statistics/months/:month/categories', 'getStatisticsCategories');
 $app->get('/statistics/months/:month/categories/:category/rawdata', 'getStatisticsRawdata');
+$app->get('/statistics/months/:month/sticky', 'getStickyRawdata');
+$app->put('/statistics/raw/:id', 'markStatisticData');
 $app->post('/statistics/:account', 'addStatisticData');
 # ******************************
 $app->run();

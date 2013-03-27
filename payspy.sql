@@ -61,6 +61,7 @@ CREATE TABLE `CSVDATA` (
   `inserted` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   
   `month` INT,
+  `sticky` VARCHAR(1),
   `notes` VARCHAR(255),
   `category` INT,
   

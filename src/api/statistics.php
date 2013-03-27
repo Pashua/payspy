@@ -142,11 +142,38 @@ function getStatisticsRawdata($month, $category) {
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);
-		$stmt->bindParam("account", $account);  
+		$stmt->bindParam("account", $account);
 		$stmt->bindParam("month", $month);
 		if( $catId != '_' ) {
 			$stmt->bindParam("category", $catId);
 		}
+		$stmt->execute();
+		$categories = $stmt->fetchAll(PDO::FETCH_OBJ);
+		$db = null;
+		echo json_encode($categories);
+	} catch(PDOException $e) {
+		echo '{"error":{"text":'. $e->getMessage() .', "sql":'.$sql.'}}';
+	}
+}
+
+function getStickyRawdata($month) {
+	$request = Slim::getInstance()->request();
+	$account = $request->get('account');
+	
+	$sql="";
+	
+	$sql = "SELECT d.*
+			FROM csvdata d
+			WHERE d.account =:account 
+			AND d.month =:month
+			AND d.sticky = 'Y'
+			ORDER BY d.valuta";
+	
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam("account", $account);
+		$stmt->bindParam("month", $month);
 		$stmt->execute();
 		$categories = $stmt->fetchAll(PDO::FETCH_OBJ);
 		$db = null;
@@ -301,6 +328,25 @@ function addStatisticData($checkAccount) {
 		echo '{"error":"'.$returnMsg.'"}';
 	} else {
 		echo '{"countInserted":'.$countInserted.'}';
+	}
+}
+
+function markStatisticData($id) {
+	$request = Slim::getInstance()->request();
+	$body = $request->getBody();
+	$data = json_decode($body);
+	// TODO SET updated=:now
+	$sql = "UPDATE csvdata SET sticky='Y', notes=:notes WHERE id=:id";
+	try {
+		$db = getConnection();
+		$stmt = $db->prepare($sql);  
+		$stmt->bindParam("id", $id);
+		$stmt->bindParam("notes", $data->notes);
+		$stmt->execute();
+		$db = null;
+		echo json_encode($data); 
+	} catch(PDOException $e) {
+		echo '{"error":{"text":'. $e->getMessage() .'}}'; 
 	}
 }
 
