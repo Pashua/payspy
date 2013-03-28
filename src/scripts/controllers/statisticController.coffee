@@ -173,14 +173,16 @@ define ['controllers/controllers', 'services/statisticService', 'services/accoun
       ACTIONS
     ###
 
-    $scope.markStatisticItem = (id) ->
-      console.log "mark statistic item... id:#{id}"
+    $scope.markStatisticItem = (rawData) ->
+      console.log "mark statistic item... id:#{rawData.id}"
+      stickyList = @stickyData.data
       reqParams = angular.copy @markStatItem
-      q = statisticService.markItem id, reqParams.notes
-      q.success (team) ->
-        # TODO something...
+      rawData.notes = reqParams.notes
+      q = statisticService.markItem rawData.id, reqParams.notes
+      q.success (data) ->
+        stickyList.push rawData
       q.error (response) ->
-        # TODO something...
+        console.log 'ERROR while adding sticky annotation!'
 
     $scope.onLoadMonths = (month) ->
       # initialize the new object

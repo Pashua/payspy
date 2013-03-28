@@ -10,6 +10,8 @@ $categoryFontHeight: 16px;
 $rawdataHeight: 30px;
 $rawdataFontHeight: 11px;
 
+$stickydataFontHeight: 14px;
+
 .tw-colored {
   .tw-plus {
     color: green;
@@ -76,51 +78,50 @@ section.tw-statistics {
         }
       }
       
-      .tw-sticky-item {
-        position: relative;
-        height: $rawdataHeight;
-        border-bottom: 1px solid #eee;
-        //line-height: $rawdataHeight;
-        font-size: $rawdataFontHeight;
-        &.tw-sticky {
-          background-color: #D9EDF7;
-        }
-        > div {
-          height: $rawdataHeight;
-          line-height: $rawdataHeight/2;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .tw-raw-id { @include span-columns(1, 24); }
-        .tw-raw-valuta { @include span-columns(2, 24); }
-        .tw-raw-notes { @include span-columns(15, 24); }
-        .tw-raw-value { @include span-columns(2, 24); text-align:right;}
-        .tw-raw-currency { @include span-columns(1, 24); }
-        .tw-raw-empty { @include span-columns(3 omega, 24);}
-        
-        .tw-action {
-          //display: none;
-          visibility:hidden;
-          opacity:0;
-          transition:visibility 0s linear 0.5s,opacity 0.5s linear;
-          position: absolute;
-          right: 0px;
-          padding-left: 10px;
-          line-height: $rawdataHeight;
-          text-align: right;
-          background-color: #fff;
-          background-color: rgba(#ffffff, 0.7);
-
-        }
-        &:hover .tw-action {
-          //display: block;
-          visibility:visible;
-          opacity:1;
-        }
-      }
-      
       .tw-categories {
         display: none;
+        
+        .tw-sticky-data {
+          .tw-sticky-item {
+            position: relative;
+            height: $rawdataHeight;
+            border-bottom: 1px solid #eee;
+            //line-height: $rawdataHeight;
+            font-size: $stickydataFontHeight;
+            color: #005C9E;
+            > div {
+              height: $rawdataHeight;
+              line-height: $rawdataHeight;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .tw-raw-id { @include span-columns(1, 24); }
+            .tw-raw-valuta { @include span-columns(2, 24); }
+            .tw-raw-notes { @include span-columns(15, 24); }
+            .tw-raw-value { @include span-columns(2, 24); text-align:right;}
+            .tw-raw-currency { @include span-columns(1, 24); }
+            .tw-raw-empty { @include span-columns(3 omega, 24);}
+            
+            .tw-action {
+              //display: none;
+              visibility:hidden;
+              opacity:0;
+              transition:visibility 0s linear 0.5s,opacity 0.5s linear;
+              position: absolute;
+              right: 0px;
+              padding-left: 10px;
+              line-height: $rawdataHeight;
+              text-align: right;
+              background-color: #fff;
+              background-color: rgba(#ffffff, 0.7);
+            }
+            &:hover .tw-action {
+              //display: block;
+              visibility:visible;
+              opacity:1;
+            }
+          }
+        }
         
         .tw-category {
           //border-top: 1px solid #ddd;

@@ -1,5 +1,5 @@
 <div class="popoverMarkStat">
-	<form name="markStatForm" ng:submit="markStatisticItem(raw.id)">
+	<form name="markStatForm" ng:submit="markStatisticItem(raw)">
 		
 		<div class="tw-wrapper">
 			<div class="tw-field">

@@ -36,18 +36,20 @@
 					<div class="tw-val-s tw-minus">{{month.value_s | number:2}}</div>
 					<div class="tw-sum" ng:class="{'tw-plus':(month.value_h*1)+(month.value_s*1)>0, 'tw-minus':(month.value_h*1)+(month.value_s*1)<0}">{{(month.value_h*1)+(month.value_s*1) | number:2}}</div>
 				</div>
-				<div id="stickyData{{month.name}}" class="tw-sticky-data">
-					<div class="tw-sticky-item" ng:repeat="stickyItem in stickyData.data">
-						<div class="tw-raw-id">{{stickyItem.id}}</div>
-						<div class="tw-raw-valuta">{{stickyItem.valuta}}</div>
-						<div class="tw-raw-notes">{{stickyItem.notes}}</div>
-						<div class="tw-raw-value">{{stickyItem.value | number:2}}</div>
-						<div class="tw-raw-currency">{{stickyItem.currency}}</div>
-						<div class="tw-raw-empty">&nbsp;</div>
-						<!-- <div class="tw-action"><a class="btn btn-mini btn-success" href bs-popover="'views/statistics/popover_mark.html'" data-container="body" data-title="Umsatz markieren" data-placement="bottom"><i class="icon-eye-open"></i> markieren</a></div> -->
-					</div>
-				</div>
+
 				<div id="catData{{month.name}}" class="tw-categories">
+					<div id="stickyData{{month.name}}" class="tw-sticky-data">
+						<div class="tw-sticky-item" ng:repeat="stickyItem in stickyData.data">
+							<div class="tw-raw-id"><span class="label label-success"><i class="icon-eye-open"></i></span><!--{{stickyItem.id}}--></div>
+							<div class="tw-raw-valuta"><!--{{stickyItem.valuta}-->&nbsp;</div>
+							<div class="tw-raw-notes">{{stickyItem.notes}}</div>
+							<div class="tw-raw-value">{{stickyItem.value | number:2}}</div>
+							<div class="tw-raw-currency">{{stickyItem.currency}}</div>
+							<div class="tw-raw-empty">&nbsp;</div>
+							<!-- <div class="tw-action"><a class="btn btn-mini btn-success" href bs-popover="'views/statistics/popover_mark.html'" data-container="body" data-title="Umsatz markieren" data-placement="bottom"><i class="icon-eye-open"></i> markieren</a></div> -->
+						</div>
+					</div>
+					
 					<div class="tw-category" ng:repeat="cat in categories.data" ng:init="dataIsOpen=false">
 						<div class="tw-overview tw-colored" ng:click="onLoadRawData(month.name, cat.id)">
 							<div class="tw-name" ng:show="cat.name">{{cat.name}}</div>
